@@ -16,9 +16,6 @@ RUN wget https://github.com/z3APA3A/3proxy/archive/refs/tags/0.9.4.tar.gz && \
 # Copy the 3proxy configuration
 COPY ./wrapper/wrapper.conf /etc/wrapper.conf
 
-# Expose proxy port
-EXPOSE 1080
-
 # Run 3proxy
 ENTRYPOINT ["/usr/local/bin/wrapper"]
 CMD ["/etc/wrapper.conf"]
