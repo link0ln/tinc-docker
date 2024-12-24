@@ -1,49 +1,32 @@
-# Stage 1: Build the tinc binary
-FROM ubuntu:22.04 AS build
+# Stage 1: Build
+FROM alpine:3.21 AS build
 
-# Install required packages for building tinc
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    wget \
-    libssl-dev \
-    zlib1g-dev \
-    libncurses5-dev \
-    liblzo2-dev \
-    libreadline-dev \
-    libwrap0-dev
+WORKDIR /app
 
-# Download and extract the tinc source code
-RUN wget https://www.tinc-vpn.org/packages/tinc-1.1pre18.tar.gz && \
-    tar xzf tinc-1.1pre18.tar.gz && \
-    cd tinc-1.1pre18 && \
-    ./configure && \
-    make && \
-    make install
+COPY tinc-1.1pre17.tar.gz /app/
 
-# Stage 2: Create a smaller runtime image
-FROM ubuntu:22.04
+RUN apk add --no-cache wget gcc g++ make cmake linux-headers musl-dev ncurses-dev readline-dev zlib-dev lzo-dev openssl-dev; \
+    wget https://tinc-vpn.org/packages/tinc-1.1pre18.tar.gz
+    tar xvfz tinc-1.1pre18.tar.gz; \
+    cd tinc-1.1pre18; \
+    ./configure; \
+    make -j 2; \
+    make install;
 
-# Install tinc runtime dependencies
-RUN apt-get update && apt-get install -y \
-    libssl3 \
-    liblzo2-2 \
-    libreadline8 \
-    libwrap0 \
-    zlib1g \
-    net-tools \
-    iproute2 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Stage 2: Runtime
+FROM alpine:3.21
 
-# Copy tinc binaries from the build container
-COPY --from=build /usr/local/sbin/tincd /usr/local/sbin/tincd
-COPY --from=build /usr/local/sbin/tinc /usr/local/sbin/tinc
+WORKDIR /app
 
-# Set up directories for tinc configuration
-RUN mkdir -p /etc/tinc /var/run/tinc /var/log/tinc
+# Install runtime dependencies only
+RUN apk add --no-cache lzo openssl iproute2 htop net-tools
 
-# Set entrypoint to tincd
-ENTRYPOINT ["/usr/local/sbin/tincd"]
-CMD ["-D"]
+# Copy the compiled binary and other necessary files from the build stage
+COPY --from=build /usr/local /usr/local
+COPY --from=build /usr/lib /usr/lib
 
+# Add the binary path to PATH
+ENV PATH="/usr/local/sbin:/usr/local/bin:$PATH"
+
+# Default command (replace with the appropriate command for tinc)
+ENTRYPOINT ["tincd"]
