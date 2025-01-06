@@ -3,8 +3,6 @@ FROM alpine:3.21 AS build
 
 WORKDIR /app
 
-COPY tinc-1.1pre17.tar.gz /app/
-
 RUN apk add --no-cache wget gcc g++ make cmake linux-headers musl-dev ncurses-dev readline-dev zlib-dev lzo-dev openssl-dev; \
     wget https://tinc-vpn.org/packages/tinc-1.1pre18.tar.gz
     tar xvfz tinc-1.1pre18.tar.gz; \
