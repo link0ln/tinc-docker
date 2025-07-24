@@ -33,8 +33,14 @@ EOF
     cat > "$CONFIG_DIR/tinc-up" << 'EOF'
 #!/bin/sh
 ip link set $INTERFACE up
-ip addr add 10.200.210.1/24 dev $INTERFACE
-ip route add 10.200.210.0/24 dev $INTERFACE
+# Check if IP already exists before adding
+if ! ip addr show $INTERFACE | grep -q "10.200.210.1/24"; then
+    ip addr add 10.200.210.1/24 dev $INTERFACE
+fi
+# Check if route already exists before adding
+if ! ip route show | grep -q "10.200.210.0/24 dev $INTERFACE"; then
+    ip route add 10.200.210.0/24 dev $INTERFACE
+fi
 EOF
     chmod +x "$CONFIG_DIR/tinc-up"
 

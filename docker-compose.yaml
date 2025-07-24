@@ -25,6 +25,12 @@ services:
     ports:
       - "655:655/tcp"
       - "655:655/udp"
+    healthcheck:
+      test: ["CMD", "pgrep", "tincd"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
   
   proxy-wrapper:
     build:
