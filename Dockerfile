@@ -17,7 +17,7 @@ FROM alpine:3.21
 WORKDIR /app
 
 # Install runtime dependencies only
-RUN apk add --no-cache lzo openssl iproute2 htop net-tools
+RUN apk add --no-cache lzo openssl iproute2 htop net-tools wget
 
 # Copy the compiled binary and other necessary files from the build stage
 COPY --from=build /usr/local /usr/local
@@ -26,5 +26,9 @@ COPY --from=build /usr/lib /usr/lib
 # Add the binary path to PATH
 ENV PATH="/usr/local/sbin:/usr/local/bin:$PATH"
 
-# Default command (replace with the appropriate command for tinc)
-ENTRYPOINT ["tincd"]
+# Copy initialization script
+COPY init-tinc.sh /app/init-tinc.sh
+RUN chmod +x /app/init-tinc.sh
+
+# Default command
+ENTRYPOINT ["/app/init-tinc.sh"]

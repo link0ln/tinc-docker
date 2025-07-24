@@ -1,1 +1,4 @@
-tinc-conf
+tinc-data/
+tinc-conf/
+*.log
+.DS_Store
