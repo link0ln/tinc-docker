@@ -1,9 +1,9 @@
 # Stage 1: Build
-FROM alpine:3.21 AS build
+FROM alpine:3.22.2 AS build
 
 WORKDIR /app
 
-RUN apk add --no-cache wget gcc g++ make cmake linux-headers musl-dev ncurses-dev readline-dev zlib-dev lzo-dev openssl-dev; \
+RUN apk add --no-cache wget gcc g++ make cmake linux-headers musl-dev ncurses-dev readline-dev zlib-dev lzo-dev openssl-dev ca-certificates; \
     wget https://tinc-vpn.org/packages/tinc-1.1pre18.tar.gz; \
     tar xvfz tinc-1.1pre18.tar.gz; \
     cd tinc-1.1pre18; \
@@ -12,7 +12,7 @@ RUN apk add --no-cache wget gcc g++ make cmake linux-headers musl-dev ncurses-de
     make install;
 
 # Stage 2: Runtime
-FROM alpine:3.21
+FROM alpine:3.22.2
 
 WORKDIR /app
 
